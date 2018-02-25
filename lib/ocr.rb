@@ -113,7 +113,7 @@ module OCR
       if alts.length > 1
         "#{number} AMB ['" + alts.join("', '") + "']"
       else
-        alts[0]
+        check_number(alts[0])
       end
     end
 
