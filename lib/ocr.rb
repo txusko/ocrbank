@@ -80,6 +80,66 @@ module OCR
       (tot % 11).zero?
     end
 
+    def get_account(number)
+      alts = []
+      number = get_account_with_question_marks(number)
+      if !checksum?(number)
+        equivalences = []
+        equivalences[0] = [8]
+        equivalences[1] = [7]
+        equivalences[3] = [9]
+        equivalences[5] = [9, 6]
+        equivalences[6] = [8, 5]
+        equivalences[7] = [1]
+        equivalences[9] = [8, 5, 3]
+        equivalences[8] = [9, 6, 0]
+        equivalences.each_with_index do |num, index|
+          next if num.nil?
+          num.each do |to_num|
+            cp_num = number.dup
+            next unless number.include?(index.to_s)
+            get_num_alternatives(number, index, cp_num,
+                                 to_num.to_s, alts)
+          end
+        end
+      else
+        alts.push(number) unless alts.include?(number)
+      end
+      show_alternatives(number, alts)
+    end
+
+    def show_alternatives(number, alts)
+      alts.sort!
+      if alts.length > 1
+        "#{number} AMB ['" + alts.join("', '") + "']"
+      else
+        alts[0]
+      end
+    end
+
+    def get_num_alternatives(number, index, cp_num, to_num, alts)
+      realindex = 0
+      cp_num.split('').each do
+        cp_num = number.dup
+        if cp_num[realindex] == index.to_s
+          cp_num[realindex] = to_num
+          alts.push(cp_num) if !alts.include?(cp_num) && checksum?(cp_num)
+        end
+        realindex += 1
+      end
+    end
+
+    def get_account_with_question_marks(number)
+      if number =~ /[?]/
+        (0..9).each do |i|
+          cp_number = number.dup
+          cp_number = cp_number.sub('?', i.to_s)
+          return cp_number if checksum?(cp_number)
+        end
+      end
+      number
+    end
+
     def check_number(number)
       if number =~ /[?]/
         "#{number} ILL"

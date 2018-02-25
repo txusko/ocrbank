@@ -3,16 +3,10 @@ require 'spec_helper'
 module OCR
   describe "'when user story 1'" do
     before do
-      @ocr = OCR.new
-      # expected
-      @expected = File.open('./data/user_story1_out.txt').each_line.map(&:chomp)
-      # read
-      @results = @ocr.scan_file('./data/user_story1_in.txt')
+      init_helper('./data/user_story1')
     end
     it 'check length data' do
-      expect(@expected.length).to be > 0
-      expect(@results.length).to be > 0
-      expect(@results.length).to eq(@expected.length)
+      check_length
     end
     it 'check filename' do
       @expected.each_with_index do |expected_number, index|
